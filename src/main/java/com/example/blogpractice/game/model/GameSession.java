@@ -32,6 +32,10 @@ public class GameSession implements Serializable {
     private long currentRoundStartTime;
     private int currentRoundSubmittedGuesses;
 
+    public GameSession() {
+        // 역직렬화 문제 방지, 이제필요없음(아마도)
+    }
+
     public GameSession(String sessionId) {
         this.sessionId = sessionId;
         this.players = new ArrayList<>();

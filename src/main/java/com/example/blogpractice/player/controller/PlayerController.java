@@ -35,7 +35,6 @@ public class PlayerController {
     @PostMapping("/guest/{sessionId}")
     public ResponseEntity<?> createGuestPlayer(@PathVariable String sessionId,
                                                @Valid @RequestBody PlayerCreateRequest request) {
-        System.out.println("호스트 입장");
         Player player = playerService.createPlayer(request.getNickname(), request.getCharacterId(), sessionId, false);
 
         Map<String, Object> response = new HashMap<>();
