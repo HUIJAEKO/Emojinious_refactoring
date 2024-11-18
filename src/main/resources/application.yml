@@ -14,9 +14,14 @@ spring:
       add-mappings: true
       static-locations: classpath:/static
 
+jwt:
+  secret: ENC(U1iEDPMT18taS96ZUvkQO8XEoJdjftoiSiFgPYEwfUlNP1oNRPK8MtC5WbPhipG4+/Ygoh7CGqx4NXtJcigdNk71liILkPbB0e8oQvWccaE=)
+  expiration: 3600000
+
 server:
   port: 8081
 
 logging:
   level:
     root: INFO
+
