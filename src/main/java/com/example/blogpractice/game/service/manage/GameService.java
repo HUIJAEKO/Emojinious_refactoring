@@ -4,6 +4,7 @@ import com.example.blogpractice.game.dto.GameSettingDto;
 import com.example.blogpractice.game.dto.GameStateDto;
 import com.example.blogpractice.game.model.GameSession;
 import com.example.blogpractice.game.model.GameSettings;
+import com.example.blogpractice.message.dto.ChatMessage;
 import com.example.blogpractice.player.domain.Player;
 import com.example.blogpractice.player.dto.PlayerDto;
 import com.example.blogpractice.player.service.PlayerService;
@@ -104,4 +105,9 @@ public class GameService {
         dto.setTheme(settings.getTheme());
         return dto;
     }
+
+    public void broadcastChatMessage(String sessionId, ChatMessage message) {
+        messageUtil.broadcastChatMessage(sessionId, message);
+    }
+
 }

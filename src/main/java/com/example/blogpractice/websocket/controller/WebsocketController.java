@@ -2,6 +2,7 @@ package com.example.blogpractice.websocket.controller;
 
 import com.example.blogpractice.game.dto.GameStateDto;
 import com.example.blogpractice.game.service.manage.GameService;
+import com.example.blogpractice.message.dto.ChatMessage;
 import com.example.blogpractice.message.dto.ConnectMessage;
 import com.example.blogpractice.player.domain.Player;
 import com.example.blogpractice.player.service.PlayerService;
@@ -73,5 +74,16 @@ public class WebsocketController {
         }
 
         return gameService.joinGame(sessionId, playerId, nickname);
+    }
+
+    @MessageMapping("/game/{sessionId}/chat")
+    public void sendChatMessage(@DestinationVariable String sessionId,
+                                @Payload ChatMessage message,
+                                SimpMessageHeaderAccessor headerAccessor) {
+        String playerId = (String) headerAccessor.getSessionAttributes().get("playerId");
+        String nickname = (String) headerAccessor.getSessionAttributes().get("nickname");
+        message.setPlayerId(playerId);
+        message.setSender(nickname);
+        gameService.broadcastChatMessage(sessionId, message);
     }
 }
