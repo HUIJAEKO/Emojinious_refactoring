@@ -15,12 +15,12 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, JwtAuthenticationFilter jwtAuthFilter) throws Exception {
-        http
-                .csrf(csrf -> csrf.disable())
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin))
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/index.html", "/js/**", "/css/**", "/ws/**").permitAll()
+            http
+                    .csrf(csrf -> csrf.disable())
+                    .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                    .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin))
+                    .authorizeHttpRequests(auth -> auth
+                            .requestMatchers("/", "/index.html", "/js/**", "/css/**", "/ws/**").permitAll()
                         .requestMatchers("/api/players/**").permitAll()
                         .anyRequest().authenticated()
                 )

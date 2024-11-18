@@ -23,13 +23,6 @@ public class PlayerService {
     private static final long PLAYER_EXPIRATION = 3 * 60 * 60;
 
     public Player createPlayer(String nickname, int characterId, String sessionId, boolean isHost) {
-        if (nickname == null || nickname.isEmpty()) {
-            throw new IllegalArgumentException("Nickname cannot be empty");
-        }
-        if (characterId <= 0) {
-            throw new IllegalArgumentException("Character ID must be greater than 0");
-        }
-
         String playerId = UUID.randomUUID().toString();
         Player player = new Player(playerId, nickname, characterId, isHost);
         player.setSessionId(sessionId);
@@ -52,7 +45,7 @@ public class PlayerService {
     }
 
     public String generateInviteLink(String sessionId) {
-        return "http://localhost:8081/api/players/guest?sessionId=" + sessionId;
+        return "http://localhost:8080/join?sessionId=" + sessionId;
     }
 
 }

@@ -20,7 +20,6 @@ public class PlayerController {
 
     @PostMapping("/host")
     public ResponseEntity<?> createHostPlayer(@Valid @RequestBody PlayerCreateRequest request) {
-        System.out.println("PlayerController.createHostPlayer");
         String sessionId = UUID.randomUUID().toString();
         Player player = playerService.createPlayer(request.getNickname(), request.getCharacterId(), sessionId, true);
         String inviteLink = playerService.generateInviteLink(sessionId);
@@ -36,7 +35,7 @@ public class PlayerController {
     @PostMapping("/guest/{sessionId}")
     public ResponseEntity<?> createGuestPlayer(@PathVariable String sessionId,
                                                @Valid @RequestBody PlayerCreateRequest request) {
-        System.out.println("PlayerController.createGuestPlayer");
+        System.out.println("호스트 입장");
         Player player = playerService.createPlayer(request.getNickname(), request.getCharacterId(), sessionId, false);
 
         Map<String, Object> response = new HashMap<>();

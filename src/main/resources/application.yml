@@ -19,7 +19,7 @@ jwt:
   expiration: 3600000
 
 server:
-  port: 8081
+  port: 8080
 
 logging:
   level:
