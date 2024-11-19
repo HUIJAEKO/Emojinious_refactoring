@@ -25,7 +25,7 @@ public class GameSessionController {
             @PathVariable String sessionId,
             @RequestBody GameSettingDto settings,
             @RequestHeader("Authorization") String token) {
-
+        System.out.println("update settings");
         Claims claims = jwtUtil.validateToken(token.replace("Bearer ", ""));
         String playerId = claims.getSubject();
         boolean isHost = claims.get("isHost", Boolean.class);

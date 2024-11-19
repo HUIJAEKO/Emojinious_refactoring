@@ -2,11 +2,13 @@ package com.example.blogpractice.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import java.util.concurrent.TimeUnit;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class RedisUtil {
@@ -27,8 +29,9 @@ public class RedisUtil {
         try {
             String json = objectMapper.writeValueAsString(value);
             redisTemplate.opsForValue().set(key, json, timeout, unit);
+            log.info("Successfully set key: {} with expiration", key);  // 성공적으로 저장되었음을 확인하는 로그
         } catch (Exception e) {
-            throw new RuntimeException("Failed to set value with expiration in Redis", e);
+            log.error("Failed to set value in Redis", e);  // 실패 시 로그
         }
     }
 

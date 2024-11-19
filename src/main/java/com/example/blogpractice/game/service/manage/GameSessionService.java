@@ -16,7 +16,7 @@ public class GameSessionService {
     private final RedisUtil redisUtil;
 
     public void updateGameSettings(String sessionId, String playerId, GameSettingDto settings) {
-        Player player = redisUtil.get("player:" + playerId, Player.class);
+        Player player = redisUtil.get("player" + playerId, Player.class);
         if (player == null) {
             throw new IllegalArgumentException("Player not found");
         }
