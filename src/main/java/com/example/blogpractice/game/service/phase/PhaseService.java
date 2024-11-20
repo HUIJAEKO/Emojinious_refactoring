@@ -12,9 +12,9 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 public class PhaseService {
-    private RedisUtil redisUtil;
-    private MessageUtil messageUtil;
-    private GameService gameService;
+    private final RedisUtil redisUtil;
+    private final MessageUtil messageUtil;
+    private final GameService gameService;
     private static final String GAME_SESSION_KEY = "game:session:";
 
     public void startLoadingPhase(GameSession gameSession) {
