@@ -1,4 +1,4 @@
-package com.example.blogpractice.util;
+package com.example.blogpractice.redis.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;

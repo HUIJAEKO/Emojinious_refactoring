@@ -1,4 +1,4 @@
-package com.example.blogpractice.util;
+package com.example.blogpractice.security;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

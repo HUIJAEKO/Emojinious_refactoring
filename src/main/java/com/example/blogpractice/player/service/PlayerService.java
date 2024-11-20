@@ -1,8 +1,8 @@
 package com.example.blogpractice.player.service;
 
 import com.example.blogpractice.player.domain.Player;
-import com.example.blogpractice.util.JwtUtil;
-import com.example.blogpractice.util.RedisUtil;
+import com.example.blogpractice.security.JwtUtil;
+import com.example.blogpractice.redis.util.RedisUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

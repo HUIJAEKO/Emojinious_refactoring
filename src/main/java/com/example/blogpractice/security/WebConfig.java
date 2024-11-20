@@ -1,4 +1,4 @@
-package com.example.blogpractice.config;
+package com.example.blogpractice.security;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;

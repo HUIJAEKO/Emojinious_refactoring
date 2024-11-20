@@ -2,11 +2,11 @@ package com.example.blogpractice.websocket.controller;
 
 import com.example.blogpractice.game.dto.GameStateDto;
 import com.example.blogpractice.game.service.manage.GameService;
-import com.example.blogpractice.message.dto.ChatMessage;
-import com.example.blogpractice.message.dto.ConnectMessage;
+import com.example.blogpractice.websocket.message.ChatMessage;
+import com.example.blogpractice.websocket.message.ConnectMessage;
 import com.example.blogpractice.player.domain.Player;
 import com.example.blogpractice.player.service.PlayerService;
-import com.example.blogpractice.util.JwtUtil;
+import com.example.blogpractice.security.JwtUtil;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.DestinationVariable;

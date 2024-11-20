@@ -1,4 +1,4 @@
-package com.example.blogpractice.message.dto;
+package com.example.blogpractice.websocket.message;
 
 import lombok.Data;
 

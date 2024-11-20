@@ -1,7 +1,7 @@
-package com.example.blogpractice.util;
+package com.example.blogpractice.websocket.util;
 
 import com.example.blogpractice.game.dto.GameStateDto;
-import com.example.blogpractice.message.dto.ChatMessage;
+import com.example.blogpractice.websocket.message.ChatMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;

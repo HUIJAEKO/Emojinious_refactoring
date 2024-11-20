@@ -4,12 +4,12 @@ import com.example.blogpractice.game.dto.GameSettingDto;
 import com.example.blogpractice.game.dto.GameStateDto;
 import com.example.blogpractice.game.model.GameSession;
 import com.example.blogpractice.game.model.GameSettings;
-import com.example.blogpractice.message.dto.ChatMessage;
+import com.example.blogpractice.websocket.message.ChatMessage;
 import com.example.blogpractice.player.domain.Player;
 import com.example.blogpractice.player.dto.PlayerDto;
 import com.example.blogpractice.player.service.PlayerService;
-import com.example.blogpractice.util.MessageUtil;
-import com.example.blogpractice.util.RedisUtil;
+import com.example.blogpractice.websocket.util.MessageUtil;
+import com.example.blogpractice.redis.util.RedisUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

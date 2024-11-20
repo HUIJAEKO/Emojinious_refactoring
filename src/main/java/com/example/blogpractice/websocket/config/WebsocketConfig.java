@@ -1,7 +1,7 @@
-package com.example.blogpractice.config;
+package com.example.blogpractice.websocket.config;
 
 import com.example.blogpractice.player.service.PlayerService;
-import com.example.blogpractice.util.JwtUtil;
+import com.example.blogpractice.security.JwtUtil;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;

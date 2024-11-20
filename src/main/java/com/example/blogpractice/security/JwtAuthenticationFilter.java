@@ -1,6 +1,5 @@
-package com.example.blogpractice.config;
+package com.example.blogpractice.security;
 
-import com.example.blogpractice.util.JwtUtil;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
