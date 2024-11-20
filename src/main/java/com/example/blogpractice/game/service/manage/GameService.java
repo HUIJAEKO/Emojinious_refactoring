@@ -4,6 +4,7 @@ import com.example.blogpractice.game.dto.GameSettingDto;
 import com.example.blogpractice.game.dto.GameStateDto;
 import com.example.blogpractice.game.model.GameSession;
 import com.example.blogpractice.game.model.GameSettings;
+import com.example.blogpractice.game.service.phase.PhaseService;
 import com.example.blogpractice.websocket.message.ChatMessage;
 import com.example.blogpractice.player.domain.Player;
 import com.example.blogpractice.player.dto.PlayerDto;
@@ -26,6 +27,7 @@ public class GameService {
     private final MessageUtil messageUtil;
     private final Map<String, Set<String>> activeConnections = new ConcurrentHashMap<>();
     private static final String GAME_SESSION_KEY = "game:session:";
+    private final PhaseService phaseService;
 
     public void handleExistingConnection(String sessionId, String playerId) {
         Set<String> sessionPlayers = activeConnections.computeIfAbsent(sessionId, k -> ConcurrentHashMap.newKeySet());
@@ -54,7 +56,7 @@ public class GameService {
         return createGameStateDto(gameSession);
     }
 
-    private void updateGameSession(GameSession gameSession) {
+    public void updateGameSession(GameSession gameSession) {
         redisUtil.set(GAME_SESSION_KEY + gameSession.getSessionId(), gameSession);
     }
 
@@ -110,4 +112,15 @@ public class GameService {
         messageUtil.broadcastChatMessage(sessionId, message);
     }
 
+    public GameStateDto startGame(String sessionId, String playerId) {
+        System.out.println("GameService.startGame");
+        GameSession gameSession = getGameSession(sessionId);
+        if (!gameSession.isHost(playerId)) {
+            throw new IllegalStateException("Only host can start the game");
+        }
+        gameSession.startGame();
+        updateGameSession(gameSession);
+        phaseService.startLoadingPhase(gameSession);
+        return createGameStateDto(gameSession);
+    }
 }

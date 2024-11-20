@@ -77,4 +77,66 @@ public class GameSession implements Serializable {
             return Math.max(0, phaseEndTime - System.currentTimeMillis());
         }
     }
+
+    public boolean isHost(String playerId) {
+        return players.get(0).getId().equals(playerId);
+    }
+
+    public void startGame() {
+        if (players.size() < 2) {
+            throw new IllegalStateException("Not enough players to start the game");
+        }
+        state = GameState.IN_PROGRESS;
+        currentTurn = 1;
+        moveToNextPhase();
+    }
+
+    public void moveToNextPhase() {
+        System.out.println("GameSession.moveToNextPhase curr: " + currentPhase);
+        switch (currentPhase) {
+            case WAITING:
+                currentPhase = GamePhase.LOADING;
+                break;
+            case LOADING:
+                currentPhase = GamePhase.DESCRIPTION;
+                break;
+            case DESCRIPTION:
+                currentPhase = GamePhase.GENERATION;
+                break;
+            case GENERATION:
+                currentPhase = GamePhase.CHECKING;
+                break;
+            case CHECKING:
+                currentPhase = GamePhase.GUESSING;
+                break;
+            case GUESSING:
+                currentPhase = GamePhase.TURN_RESULT;
+                break;
+            case TURN_RESULT:
+                if (currentTurn < settings.getTurns()) {
+                    currentTurn++;
+                    currentPhase = GamePhase.DESCRIPTION;
+                } else {
+                    currentPhase = GamePhase.RESULT;
+                    state = GameState.FINISHED;
+                }
+                break;
+            case RESULT:
+                break;
+        }
+        startPhaseTimer();
+    }
+
+    public void startPhaseTimer() {
+        System.out.println("GameSession.startPhaseTimer : " + currentPhase);
+        phaseStartTime = System.currentTimeMillis();
+        switch (currentPhase) {
+            case DESCRIPTION -> phaseEndTime = phaseStartTime + (settings.getPromptTimeLimit() * 1000L);
+            case GUESSING -> phaseEndTime = phaseStartTime + (settings.getGuessTimeLimit() * 1000L);
+            case CHECKING -> phaseEndTime = phaseStartTime + 15 * 1000L;
+            case TURN_RESULT -> phaseEndTime = phaseStartTime + 10 * 1000L;
+            default -> phaseEndTime = phaseStartTime + 60 * 10 * 1000L;
+        }
+        System.out.println("Time: " + (phaseEndTime - phaseStartTime) + " ms");
+    }
 }

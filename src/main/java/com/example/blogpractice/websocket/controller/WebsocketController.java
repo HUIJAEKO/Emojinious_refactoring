@@ -86,4 +86,12 @@ public class WebsocketController {
         message.setSender(nickname);
         gameService.broadcastChatMessage(sessionId, message);
     }
+
+    @MessageMapping("/game/{sessionId}/start")
+    @SendTo("/topic/game/{sessionId}")
+    public GameStateDto startGame(@DestinationVariable String sessionId,
+                                  SimpMessageHeaderAccessor headerAccessor) {
+        String playerId = (String) headerAccessor.getSessionAttributes().get("playerId");
+        return gameService.startGame(sessionId, playerId);
+    }
 }
