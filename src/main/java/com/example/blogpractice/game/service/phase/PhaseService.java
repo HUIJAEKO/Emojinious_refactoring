@@ -2,6 +2,7 @@ package com.example.blogpractice.game.service.phase;
 
 import com.example.blogpractice.game.model.GameSession;
 import com.example.blogpractice.game.service.manage.GameService;
+import com.example.blogpractice.game.service.word.RandomWordGenerator;
 import com.example.blogpractice.redis.util.RedisUtil;
 import com.example.blogpractice.websocket.util.MessageUtil;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +16,7 @@ public class PhaseService {
     private final RedisUtil redisUtil;
     private final MessageUtil messageUtil;
     private final GameService gameService;
+    private final RandomWordGenerator randomWordGenerator;
     private static final String GAME_SESSION_KEY = "game:session:";
 
     public void startLoadingPhase(GameSession gameSession) {
