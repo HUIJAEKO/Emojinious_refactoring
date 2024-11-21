@@ -10,10 +10,6 @@ import org.springframework.stereotype.Service;
 public class GameSessionManager {
     private final RedisUtil redisUtil;
 
-    public GameSession getGameSession(String sessionId) {
-        return redisUtil.get("game:session:" + sessionId, GameSession.class);
-    }
-
     public void updateGameSession(GameSession gameSession) {
         redisUtil.set("game:session:" + gameSession.getSessionId(), gameSession);
     }

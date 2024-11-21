@@ -1,3 +1,7 @@
+jasypt:
+  encryptor:
+    bean: jasyptStringEncryptor
+
 spring:
   application:
     name: blog-practice
@@ -28,7 +32,3 @@ server:
 logging:
   level:
     root: INFO
-
-jasypt:
-  encryptor:
-    bean: jasyptStringEncryptor
