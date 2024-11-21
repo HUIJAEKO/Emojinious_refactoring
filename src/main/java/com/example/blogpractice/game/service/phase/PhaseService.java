@@ -1,7 +1,7 @@
 package com.example.blogpractice.game.service.phase;
 
 import com.example.blogpractice.game.model.GameSession;
-import com.example.blogpractice.game.service.manage.GameService;
+import com.example.blogpractice.game.service.manage.GameSessionManager;
 import com.example.blogpractice.game.service.word.RandomWordGenerator;
 import com.example.blogpractice.redis.util.RedisUtil;
 import com.example.blogpractice.websocket.util.MessageUtil;
@@ -15,7 +15,7 @@ import java.util.Map;
 public class PhaseService {
     private final RedisUtil redisUtil;
     private final MessageUtil messageUtil;
-    private final GameService gameService;
+    private final GameSessionManager gameSessionManager;
     private final RandomWordGenerator randomWordGenerator;
     private static final String GAME_SESSION_KEY = "game:session:";
 
@@ -30,33 +30,33 @@ public class PhaseService {
         );
         gameSession.getCurrentKeywords().clear();
         gameSession.getCurrentKeywords().putAll(keywords);
-        gameService.updateGameSession(gameSession);
+        gameSessionManager.updateGameSession(gameSession);
         moveToNextPhase(gameSession);
     }
 
     private void moveToNextPhase(GameSession gameSession) {
         gameSession.moveToNextPhase();
         updateGameSession(gameSession);
-        switch (gameSession.getCurrentPhase()) {
-            case DESCRIPTION:
-                startDescriptionPhase(gameSession);
-                break;
-            case GENERATION:
-                startGenerationPhase(gameSession);
-                break;
-            case CHECKING:
-                startCheckingPhase(gameSession);
-                break;
-            case GUESSING:
-                startGuessingPhase(gameSession);
-                break;
-            case TURN_RESULT:
-                startTurnResultPhase(gameSession);
-                break;
-            case RESULT:
-                endGame(gameSession);
-                break;
-        }
+//        switch (gameSession.getCurrentPhase()) {
+//            case DESCRIPTION:
+//                startDescriptionPhase(gameSession);
+//                break;
+//            case GENERATION:
+//                startGenerationPhase(gameSession);
+//                break;
+//            case CHECKING:
+//                startCheckingPhase(gameSession);
+//                break;
+//            case GUESSING:
+//                startGuessingPhase(gameSession);
+//                break;
+//            case TURN_RESULT:
+//                startTurnResultPhase(gameSession);
+//                break;
+//            case RESULT:
+//                endGame(gameSession);
+//                break;
+//        }
         updateGameSession(gameSession);
     }
 

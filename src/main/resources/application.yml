@@ -29,3 +29,6 @@ logging:
   level:
     root: INFO
 
+jasypt:
+  encryptor:
+    bean: jasyptStringEncryptor
