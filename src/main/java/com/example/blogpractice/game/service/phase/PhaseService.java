@@ -1,6 +1,7 @@
 package com.example.blogpractice.game.service.phase;
 
 import com.example.blogpractice.game.model.GameSession;
+import com.example.blogpractice.game.service.manage.GameService;
 import com.example.blogpractice.game.service.manage.GameSessionManager;
 import com.example.blogpractice.game.service.word.RandomWordGenerator;
 import com.example.blogpractice.redis.util.RedisUtil;
@@ -37,10 +38,10 @@ public class PhaseService {
     private void moveToNextPhase(GameSession gameSession) {
         gameSession.moveToNextPhase();
         updateGameSession(gameSession);
-//        switch (gameSession.getCurrentPhase()) {
-//            case DESCRIPTION:
-//                startDescriptionPhase(gameSession);
-//                break;
+        switch (gameSession.getCurrentPhase()) {
+            case DESCRIPTION:
+                startDescriptionPhase(gameSession);
+                break;
 //            case GENERATION:
 //                startGenerationPhase(gameSession);
 //                break;
@@ -56,11 +57,32 @@ public class PhaseService {
 //            case RESULT:
 //                endGame(gameSession);
 //                break;
-//        }
+        }
         updateGameSession(gameSession);
+    }
+
+
+    private void startDescriptionPhase(GameSession gameSession) {
+        System.out.println("GameService.startDescriptionPhase");
+        gameSession.getPlayers().forEach(player ->
+                messageUtil.sendToPlayer(gameSession.getSessionId(), player.getSocketId(), "keyword", gameSession.getCurrentKeywords().get(player.getId())));
+        messageUtil.broadcastGameState(gameSession.getSessionId(), gameSessionManager.createGameStateDto(gameSession));
+        messageUtil.broadcastPhaseStartMessage(gameSession.getSessionId(), gameSession.getCurrentPhase(), "Description Phase");
+        updateSubmissionProgress(gameSession, "prompt");
     }
 
     private void updateGameSession(GameSession gameSession) {
         redisUtil.set(GAME_SESSION_KEY + gameSession.getSessionId(), gameSession);
+    }
+
+    private void updateSubmissionProgress(GameSession gameSession, String type) {
+        int submitted;
+        if (type.equals("prompt")) {
+            submitted = gameSession.getCurrentPrompts().size();
+        } else { // guess
+            submitted = gameSession.getCurrentRoundSubmittedGuesses();
+        }
+        int total = gameSession.getPlayers().size();
+        messageUtil.updateSubmissionProgress(gameSession.getSessionId(), type, submitted, total);
     }
 }

@@ -28,6 +28,7 @@ public class GameService {
     private final Map<String, Set<String>> activeConnections = new ConcurrentHashMap<>();
     private static final String GAME_SESSION_KEY = "game:session:";
     private final PhaseService phaseService;
+    private final GameSessionManager gameSessionManager;
 
     public void handleExistingConnection(String sessionId, String playerId) {
         Set<String> sessionPlayers = activeConnections.computeIfAbsent(sessionId, k -> ConcurrentHashMap.newKeySet());
@@ -47,13 +48,13 @@ public class GameService {
         Player player = playerService.getPlayerById(playerId);
         gameSession.addPlayer(player);
         updateGameSession(gameSession);
-        messageUtil.broadcastGameState(gameSession.getSessionId(), createGameStateDto(gameSession));
-        return createGameStateDto(gameSession);
+        messageUtil.broadcastGameState(gameSession.getSessionId(), gameSessionManager.createGameStateDto(gameSession));
+        return gameSessionManager.createGameStateDto(gameSession);
     }
 
     public GameStateDto getGameState(String sessionId) {
         GameSession gameSession = getGameSession(sessionId);
-        return createGameStateDto(gameSession);
+        return gameSessionManager.createGameStateDto(gameSession);
     }
 
     public void updateGameSession(GameSession gameSession) {
@@ -73,20 +74,20 @@ public class GameService {
         return gameSession;
     }
 
-    private GameStateDto createGameStateDto(GameSession gameSession) {
-        GameStateDto dto = new GameStateDto();
-        dto.setSessionId(gameSession.getSessionId());
-        dto.setPlayers(gameSession.getPlayers().stream()
-                .map(this::convertToPlayerDto)
-                .collect(Collectors.toList()));
-        dto.setSettings(convertToGameSettingsDto(gameSession.getSettings()));
-        dto.setState(gameSession.getState());
-        dto.setCurrentTurn(gameSession.getCurrentTurn());
-        dto.setCurrentPhase(gameSession.getCurrentPhase().ordinal());
-        dto.setRemainingTime(gameSession.getRemainingTime());
-
-        return dto;
-    }
+//    public GameStateDto createGameStateDto(GameSession gameSession) {
+//        GameStateDto dto = new GameStateDto();
+//        dto.setSessionId(gameSession.getSessionId());
+//        dto.setPlayers(gameSession.getPlayers().stream()
+//                .map(this::convertToPlayerDto)
+//                .collect(Collectors.toList()));
+//        dto.setSettings(convertToGameSettingsDto(gameSession.getSettings()));
+//        dto.setState(gameSession.getState());
+//        dto.setCurrentTurn(gameSession.getCurrentTurn());
+//        dto.setCurrentPhase(gameSession.getCurrentPhase().ordinal());
+//        dto.setRemainingTime(gameSession.getRemainingTime());
+//
+//        return dto;
+//    }
 
     private PlayerDto convertToPlayerDto(Player player) {
         PlayerDto dto = new PlayerDto();
@@ -121,6 +122,6 @@ public class GameService {
         gameSession.startGame();
         updateGameSession(gameSession);
         phaseService.startLoadingPhase(gameSession);
-        return createGameStateDto(gameSession);
+        return gameSessionManager.createGameStateDto(gameSession);
     }
 }
