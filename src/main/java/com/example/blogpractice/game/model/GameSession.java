@@ -92,7 +92,6 @@ public class GameSession implements Serializable {
     }
 
     public void moveToNextPhase() {
-        System.out.println("GameSession.moveToNextPhase curr: " + currentPhase);
         switch (currentPhase) {
             case WAITING:
                 currentPhase = GamePhase.LOADING;
@@ -128,7 +127,6 @@ public class GameSession implements Serializable {
     }
 
     public void startPhaseTimer() {
-        System.out.println("GameSession.startPhaseTimer : " + currentPhase);
         phaseStartTime = System.currentTimeMillis();
         switch (currentPhase) {
             case DESCRIPTION -> phaseEndTime = phaseStartTime + (settings.getPromptTimeLimit() * 1000L);
@@ -137,6 +135,5 @@ public class GameSession implements Serializable {
             case TURN_RESULT -> phaseEndTime = phaseStartTime + 10 * 1000L;
             default -> phaseEndTime = phaseStartTime + 60 * 10 * 1000L;
         }
-        System.out.println("Time: " + (phaseEndTime - phaseStartTime) + " ms");
     }
 }

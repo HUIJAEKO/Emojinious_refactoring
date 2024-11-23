@@ -21,7 +21,7 @@ public class PhaseService {
     private static final String GAME_SESSION_KEY = "game:session:";
 
     public void startLoadingPhase(GameSession gameSession) {
-        System.out.println("GameService.startLoadingPhase");
+        System.out.println("PhaseService.startLoadingPhase");
         messageUtil.broadcastPhaseStartMessage(gameSession.getSessionId(), gameSession.getCurrentPhase(), "Keyword Generation");
         Map<String, String> keywords = randomWordGenerator.getKeywordsFromTheme(
                 gameSession.getPlayers(),
@@ -63,7 +63,7 @@ public class PhaseService {
 
 
     private void startDescriptionPhase(GameSession gameSession) {
-        System.out.println("GameService.startDescriptionPhase");
+        System.out.println("PhaseService.startDescriptionPhase");
         gameSession.getPlayers().forEach(player ->
                 messageUtil.sendToPlayer(gameSession.getSessionId(), player.getSocketId(), "keyword", gameSession.getCurrentKeywords().get(player.getId())));
         messageUtil.broadcastGameState(gameSession.getSessionId(), gameSessionManager.createGameStateDto(gameSession));

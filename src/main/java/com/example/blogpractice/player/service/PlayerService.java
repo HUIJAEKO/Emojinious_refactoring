@@ -35,7 +35,6 @@ public class PlayerService {
     public void savePlayer(Player player) {
         String playerKey = PLAYER_KEY + player.getId();  // 수정된 부분
         String sessionPlayerKey = SESSION_PLAYER_KEY + player.getSessionId();
-        log.info("Saving player to Redis with key: {}", playerKey);
 
         redisUtil.setWithExpiration(playerKey, player, PLAYER_EXPIRATION, TimeUnit.SECONDS);
         redisUtil.setWithExpiration(sessionPlayerKey, player.getId(), PLAYER_EXPIRATION, TimeUnit.SECONDS);

@@ -17,7 +17,6 @@ import org.springframework.stereotype.Service;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -114,7 +113,6 @@ public class GameService {
     }
 
     public GameStateDto startGame(String sessionId, String playerId) {
-        System.out.println("GameService.startGame");
         GameSession gameSession = getGameSession(sessionId);
         if (!gameSession.isHost(playerId)) {
             throw new IllegalStateException("Only host can start the game");
