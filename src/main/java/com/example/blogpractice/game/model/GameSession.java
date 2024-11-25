@@ -138,6 +138,7 @@ public class GameSession implements Serializable {
     }
 
     public void setGeneratedImage(String playerId, String imageUrl) {
+
         generatedImages.put(playerId, imageUrl);
     }
 
