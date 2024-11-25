@@ -138,8 +138,20 @@ public class GameSession implements Serializable {
     }
 
     public void setGeneratedImage(String playerId, String imageUrl) {
-
         generatedImages.put(playerId, imageUrl);
     }
 
+    public void startNewGuessRound() {
+        currentGuessRound++;
+        currentRoundSubmittedGuesses = 0;
+        players.forEach(player -> guessedPlayers.put(player.getId(), new HashSet<>()));
+        currentRoundStartTime = System.currentTimeMillis();
+    }
+
+    public String getGuessTargetForPlayer(String playerId) {
+        List<String> playerIds = players.stream().map(Player::getId).toList();
+        int playerIndex = playerIds.indexOf(playerId);
+        int targetIndex = (playerIndex + currentGuessRound) % playerIds.size();
+        return playerIds.get(targetIndex);
+    }
 }

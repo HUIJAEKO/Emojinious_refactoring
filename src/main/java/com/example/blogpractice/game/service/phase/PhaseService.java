@@ -50,12 +50,12 @@ public class PhaseService {
             case GENERATION:
                 startGenerationPhase(gameSession);
                 break;
-//            case CHECKING:
-//                startCheckingPhase(gameSession);
-//                break;
-//            case GUESSING:
-//                startGuessingPhase(gameSession);
-//                break;
+            case CHECKING:
+                startCheckingPhase(gameSession);
+                break;
+            case GUESSING:
+                startGuessingPhase(gameSession);
+                break;
 //            case TURN_RESULT:
 //                startTurnResultPhase(gameSession);
 //                break;
@@ -106,6 +106,45 @@ public class PhaseService {
                     updateGameSession(gameSession);
                     moveToNextPhase(gameSession);
                 });
+    }
+
+    private void startCheckingPhase(GameSession gameSession){
+        System.out.println("GameService.startCheckingPhase");
+        messageUtil.broadcastGameState(gameSession.getSessionId(), gameSessionManager.createGameStateDto(gameSession));
+        messageUtil.broadcastPhaseStartMessage(gameSession.getSessionId(), gameSession.getCurrentPhase(), "Checking Phase");
+
+        Map<String, String> images = gameSession.getGeneratedImages();
+        gameSession.getPlayers().forEach(player ->
+                messageUtil.sendToPlayer(gameSession.getSessionId(), player.getSocketId(), "image", images.get(player.getId())));
+        messageUtil.broadcastGameState(gameSession.getSessionId(), gameSessionManager.createGameStateDto(gameSession));
+    }
+
+    private void startGuessingPhase(GameSession gameSession) {
+        System.out.println("GameService.startGuessingPhase");
+        startNewGuessRound(gameSession);
+    }
+
+    private void startNewGuessRound(GameSession gameSession) {
+        System.out.println("GameService.startNewGuessRound");
+        gameSession.startNewGuessRound();
+        updateGameSession(gameSession);
+        assignImagesToPlayers(gameSession);
+        messageUtil.broadcastPhaseStartMessage(gameSession.getSessionId(), gameSession.getCurrentPhase(),
+                "Guessing Round " + gameSession.getCurrentGuessRound());
+        updateSubmissionProgress(gameSession, "guess");
+        messageUtil.broadcastGameState(gameSession.getSessionId(), gameSessionManager.createGameStateDto(gameSession));
+    }
+
+    private void assignImagesToPlayers(GameSession gameSession) {
+        gameSession.getPlayers().forEach(player -> {
+            String imageUrl = getNextImageForPlayer(gameSession, player.getId());
+            messageUtil.sendToPlayer(gameSession.getSessionId(), player.getSocketId(), "image", imageUrl);
+        });
+    }
+
+    private String getNextImageForPlayer(GameSession gameSession, String playerId) {
+        String targetPlayerId = gameSession.getGuessTargetForPlayer(playerId);
+        return gameSession.getGeneratedImages().get(targetPlayerId);
     }
 
     private void updateGameSession(GameSession gameSession) {
