@@ -7,6 +7,8 @@ import com.example.blogpractice.websocket.message.ConnectMessage;
 import com.example.blogpractice.player.domain.Player;
 import com.example.blogpractice.player.service.PlayerService;
 import com.example.blogpractice.security.JwtUtil;
+import com.example.blogpractice.websocket.message.GuessSubmissionMessage;
+import com.example.blogpractice.websocket.message.PromptSubmissionMessage;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
@@ -93,5 +95,23 @@ public class WebsocketController {
                                   SimpMessageHeaderAccessor headerAccessor) {
         String playerId = (String) headerAccessor.getSessionAttributes().get("playerId");
         return gameService.startGame(sessionId, playerId);
+    }
+
+    @MessageMapping("/game/{sessionId}/prompt")
+    @SendTo("/topic/game/{sessionId}")
+    public GameStateDto submitPrompt(@DestinationVariable String sessionId,
+                                     @Payload PromptSubmissionMessage message,
+                                     SimpMessageHeaderAccessor headerAccessor) {
+        String playerId = (String) headerAccessor.getSessionAttributes().get("playerId");
+        return gameService.submitPrompt(sessionId, playerId, message.getPrompt());
+    }
+
+    @MessageMapping("/game/{sessionId}/guess")
+    @SendTo("/topic/game/{sessionId}")
+    public GameStateDto submitGuess(@DestinationVariable String sessionId,
+                                    @Payload GuessSubmissionMessage message,
+                                    SimpMessageHeaderAccessor headerAccessor) {
+        String playerId = (String) headerAccessor.getSessionAttributes().get("playerId");
+        return gameService.submitGuess(sessionId, playerId, message.getGuess());
     }
 }

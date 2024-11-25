@@ -6,6 +6,7 @@ import com.example.blogpractice.game.model.GameSession;
 import com.example.blogpractice.game.model.GameSettings;
 import com.example.blogpractice.player.domain.Player;
 import com.example.blogpractice.player.dto.PlayerDto;
+import com.example.blogpractice.websocket.util.MessageUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +15,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class GameSessionManager {
+    private final MessageUtil messageUtil;
     public GameStateDto createGameStateDto(GameSession gameSession) {
         GameStateDto dto = new GameStateDto();
         dto.setSessionId(gameSession.getSessionId());
@@ -47,5 +49,16 @@ public class GameSessionManager {
         dto.setTurns(settings.getTurns());
         dto.setTheme(settings.getTheme());
         return dto;
+    }
+
+    void updateSubmissionProgress(GameSession gameSession, String type) {
+        int submitted;
+        if (type.equals("prompt")) {
+            submitted = gameSession.getCurrentPrompts().size();
+        } else { // guess
+            submitted = gameSession.getCurrentRoundSubmittedGuesses();
+        }
+        int total = gameSession.getPlayers().size();
+        messageUtil.updateSubmissionProgress(gameSession.getSessionId(), type, submitted, total);
     }
 }

@@ -5,6 +5,7 @@ import com.example.blogpractice.game.dto.GameStateDto;
 import com.example.blogpractice.game.model.GameSession;
 import com.example.blogpractice.game.model.GameSettings;
 import com.example.blogpractice.game.service.phase.PhaseService;
+import com.example.blogpractice.game.service.score.ScoreCalculator;
 import com.example.blogpractice.websocket.message.ChatMessage;
 import com.example.blogpractice.player.domain.Player;
 import com.example.blogpractice.player.dto.PlayerDto;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
@@ -28,6 +30,7 @@ public class GameService {
     private static final String GAME_SESSION_KEY = "game:session:";
     private final PhaseService phaseService;
     private final GameSessionManager gameSessionManager;
+    private final ScoreCalculator scoreCalculator;
 
     public void handleExistingConnection(String sessionId, String playerId) {
         Set<String> sessionPlayers = activeConnections.computeIfAbsent(sessionId, k -> ConcurrentHashMap.newKeySet());
@@ -86,5 +89,36 @@ public class GameService {
         updateGameSession(gameSession);
         phaseService.startLoadingPhase(gameSession);
         return gameSessionManager.createGameStateDto(gameSession);
+    }
+
+    public GameStateDto submitPrompt(String sessionId, String playerId, String message) {
+        System.out.println("GameService.submitPrompt");
+        GameSession gameSession = getGameSession(sessionId);
+        gameSession.submitPrompt(playerId, message);
+        gameSessionManager.updateSubmissionProgress(gameSession, "prompt");
+        updateGameSession(gameSession);
+        messageUtil.broadcastGameState(gameSession.getSessionId(), gameSessionManager.createGameStateDto(gameSession));
+        System.out.println("gameSession = " + gameSession);
+        return gameSessionManager.createGameStateDto(gameSession);
+    }
+
+
+    public GameStateDto submitGuess(String sessionId, String playerId, String guess) {
+        GameSession gameSession = getGameSession(sessionId);
+        gameSession.submitGuess(playerId, guess);
+        gameSessionManager.updateSubmissionProgress(gameSession, "guess");
+        CompletableFuture.runAsync(() -> calculateAndSaveScore(gameSession, playerId, guess));
+
+        updateGameSession(gameSession);
+        messageUtil.broadcastGameState(gameSession.getSessionId(), gameSessionManager.createGameStateDto(gameSession));
+        return gameSessionManager.createGameStateDto(gameSession);
+    }
+
+    private void calculateAndSaveScore(GameSession gameSession, String playerId, String guess) {
+        String targetPlayerId = gameSession.getGuessTargetForPlayer(playerId);
+        String targetKeyword = gameSession.getCurrentKeywords().get(targetPlayerId);
+        float score = scoreCalculator.calculateSingleGuessScore(guess, targetKeyword);
+        gameSession.addScore(playerId, targetPlayerId, score);
+        updateGameSession(gameSession);
     }
 }

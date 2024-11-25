@@ -154,4 +154,32 @@ public class GameSession implements Serializable {
         int targetIndex = (playerIndex + currentGuessRound) % playerIds.size();
         return playerIds.get(targetIndex);
     }
+
+    public void submitPrompt(String playerId, String prompt) {
+        if (state != GameState.IN_PROGRESS) {
+            throw new IllegalStateException("Game is not in progress");
+        }
+        currentPrompts.put(playerId, prompt);
+    }
+
+    public void submitGuess(String playerId, String guess) {
+        if (currentPhase != GamePhase.GUESSING) {
+            throw new IllegalStateException("Not in guessing phase");
+        }
+        String targetId = getGuessTargetForPlayer(playerId);
+        Map<String, String> guessMap = new HashMap<>();
+        guessMap.put("targetId", targetId);
+        guessMap.put("guesserId", playerId);
+        guessMap.put("guess", guess);
+        currentGuesses.add(guessMap);
+        System.out.println("currentGuesses = " + currentGuesses);
+
+        guessedPlayers.computeIfAbsent(playerId, k -> new HashSet<>()).add(targetId);
+        currentRoundSubmittedGuesses++;
+    }
+
+    public void addScore(String playerId, String targetPlayerId, float score) {
+        playerScores.computeIfAbsent(playerId, k -> new HashMap<>())
+                .put(targetPlayerId, score);
+    }
 }
