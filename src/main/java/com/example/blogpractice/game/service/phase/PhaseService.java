@@ -2,7 +2,6 @@ package com.example.blogpractice.game.service.phase;
 
 import com.example.blogpractice.game.model.GameSession;
 import com.example.blogpractice.game.service.image.ImageGenerator;
-import com.example.blogpractice.game.service.manage.GameService;
 import com.example.blogpractice.game.service.manage.GameSessionManager;
 import com.example.blogpractice.game.service.word.RandomWordGenerator;
 import com.example.blogpractice.redis.util.RedisUtil;
@@ -65,7 +64,6 @@ public class PhaseService {
         }
         updateGameSession(gameSession);
     }
-
 
     private void startDescriptionPhase(GameSession gameSession) {
         System.out.println("PhaseService.startDescriptionPhase");
