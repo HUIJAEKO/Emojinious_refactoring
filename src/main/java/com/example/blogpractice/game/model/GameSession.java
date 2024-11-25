@@ -78,6 +78,10 @@ public class GameSession implements Serializable {
         }
     }
 
+    public boolean isPhaseTimedOut() {
+        return System.currentTimeMillis() > phaseEndTime;
+    }
+
     public boolean isHost(String playerId) {
         return players.get(0).getId().equals(playerId);
     }
@@ -181,5 +185,24 @@ public class GameSession implements Serializable {
     public void addScore(String playerId, String targetPlayerId, float score) {
         playerScores.computeIfAbsent(playerId, k -> new HashMap<>())
                 .put(targetPlayerId, score);
+    }
+
+    public void removePlayer(String playerId) {
+        players.removeIf(player -> player.getId().equals(playerId));
+    }
+
+    public boolean areAllPlayersGuessedOrTimedOut(int guessTimeLimit) {
+        return players.stream().allMatch(player ->
+                hasPlayerGuessedAllOthers(player.getId()) || isCurrentRoundTimedOut(guessTimeLimit)
+        );
+    }
+
+    private boolean isCurrentRoundTimedOut(int guessTimeLimit) {
+        return System.currentTimeMillis() > currentRoundStartTime + guessTimeLimit * 1000L;
+    }
+
+    private boolean hasPlayerGuessedAllOthers(String playerId) {
+        Set<String> guessedSet = this.guessedPlayers.get(playerId);
+        return guessedSet != null && guessedSet.size() == players.size() - 1;
     }
 }

@@ -1,31 +1,37 @@
 package com.example.blogpractice.game.service.phase;
 
-import com.example.blogpractice.game.dto.GameStateDto;
+import com.example.blogpractice.game.constant.GamePhase;
+import com.example.blogpractice.game.constant.GameState;
 import com.example.blogpractice.game.dto.TurnResultDto;
 import com.example.blogpractice.game.model.GameSession;
 import com.example.blogpractice.game.service.image.ImageGenerator;
+import com.example.blogpractice.game.service.manage.GameService;
 import com.example.blogpractice.game.service.manage.GameSessionManager;
 import com.example.blogpractice.game.service.score.ScoreCalculator;
 import com.example.blogpractice.game.service.word.RandomWordGenerator;
 import com.example.blogpractice.redis.util.RedisUtil;
 import com.example.blogpractice.websocket.util.MessageUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class PhaseService {
     private final RedisUtil redisUtil;
+    private final RedisTemplate<String, String> redisTemplate;
     private final MessageUtil messageUtil;
     private final GameSessionManager gameSessionManager;
     private final RandomWordGenerator randomWordGenerator;
     private final ImageGenerator imageGenerator;
+    private final GameService gameService;
     private final ScoreCalculator scoreCalculator;
     private static final String GAME_SESSION_KEY = "game:session:";
 
@@ -42,6 +48,38 @@ public class PhaseService {
         gameSession.getCurrentKeywords().putAll(keywords);
         updateGameSession(gameSession);
         moveToNextPhase(gameSession);
+    }
+
+    @Scheduled(fixedRate = 500)
+    public void checkPhaseTimeouts() {
+        List<String> sessionIds = Objects.requireNonNull(redisTemplate.keys(GAME_SESSION_KEY + "*")).stream()
+                .map(key -> key.replace(GAME_SESSION_KEY, ""))
+                .toList();
+
+        for (String sessionId : sessionIds) {
+            GameSession gameSession = gameService.getGameSession(sessionId);
+            if (gameSession.getState() == GameState.IN_PROGRESS) {
+                if (gameSession.getCurrentPhase() == GamePhase.GUESSING) {
+                    handleGuessingPhaseTimeout(gameSession);
+                } else if (gameSession.isPhaseTimedOut()) {
+                    moveToNextPhase(gameSession);
+                }
+            }
+        }
+    }
+
+    private void handleGuessingPhaseTimeout(GameSession gameSession) {
+        if (shouldMoveToNextRoundOrPhase(gameSession)) {
+            if (gameSession.getCurrentGuessRound() < gameSession.getPlayers().size() - 1) {
+                startNewGuessRound(gameSession);
+            } else {
+                moveToNextPhase(gameSession);
+            }
+        }
+    }
+
+    private boolean shouldMoveToNextRoundOrPhase(GameSession gameSession) {
+        return gameSession.areAllPlayersGuessedOrTimedOut(gameSession.getSettings().getGuessTimeLimit());
     }
 
     private void moveToNextPhase(GameSession gameSession) {
@@ -62,10 +100,10 @@ public class PhaseService {
                 break;
             case TURN_RESULT:
                 startTurnResultPhase(gameSession);
-//                break;
-//            case RESULT:
-//                endGame(gameSession);
-//                break;
+                break;
+            case RESULT:
+                endGame(gameSession);
+                break;
         }
         updateGameSession(gameSession);
     }
@@ -161,7 +199,15 @@ public class PhaseService {
 
         messageUtil.broadcastGameState(gameSession.getSessionId(), gameSessionManager.createGameStateDto(gameSession));
         messageUtil.broadcastGameResult(gameSession.getSessionId(), scores);
+    }
 
+    public void endGame(GameSession gameSession) {
+        gameSession.setState(GameState.FINISHED);
+        updateGameSession(gameSession);
+        messageUtil.broadcastGameState(gameSession.getSessionId(), gameSessionManager.createGameStateDto(gameSession));
+        messageUtil.broadcastPhaseStartMessage(gameSession.getSessionId(), gameSession.getCurrentPhase(), "게임이 종료되었습니다. 결과를 확인해주세요.");
+
+        redisTemplate.delete(GAME_SESSION_KEY + gameSession.getSessionId());
     }
 
     private void updateGameSession(GameSession gameSession) {
