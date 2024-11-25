@@ -6,7 +6,6 @@ import com.example.blogpractice.game.model.GameSession;
 import com.example.blogpractice.game.model.GameSettings;
 import com.example.blogpractice.player.domain.Player;
 import com.example.blogpractice.player.dto.PlayerDto;
-import com.example.blogpractice.redis.util.RedisUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -15,12 +14,6 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class GameSessionManager {
-    private final RedisUtil redisUtil;
-
-    public void updateGameSession(GameSession gameSession) {
-        redisUtil.set("game:session:" + gameSession.getSessionId(), gameSession);
-    }
-
     public GameStateDto createGameStateDto(GameSession gameSession) {
         GameStateDto dto = new GameStateDto();
         dto.setSessionId(gameSession.getSessionId());

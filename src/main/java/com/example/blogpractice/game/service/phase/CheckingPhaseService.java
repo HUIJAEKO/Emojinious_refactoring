@@ -5,20 +5,22 @@ import com.example.blogpractice.game.service.manage.GameSessionManager;
 import com.example.blogpractice.websocket.util.MessageUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
-public class DescriptionPhaseService {
+public class CheckingPhaseService {
     private final MessageUtil messageUtil;
     private final GameSessionManager gameSessionManager;
-    private final PhaseService phaseService;
 
-    public void startDescriptionPhase(GameSession gameSession) {
-        System.out.println("PhaseService.startDescriptionPhase");
-        gameSession.getPlayers().forEach(player ->
-                messageUtil.sendToPlayer(gameSession.getSessionId(), player.getSocketId(), "keyword", gameSession.getCurrentKeywords().get(player.getId())));
+    public void startCheckingPhase(GameSession gameSession){
+        System.out.println("GameService.startCheckingPhase");
         messageUtil.broadcastGameState(gameSession.getSessionId(), gameSessionManager.createGameStateDto(gameSession));
-        messageUtil.broadcastPhaseStartMessage(gameSession.getSessionId(), gameSession.getCurrentPhase(), "Description Phase");
-        phaseService.updateSubmissionProgress(gameSession, "prompt");
+        messageUtil.broadcastPhaseStartMessage(gameSession.getSessionId(), gameSession.getCurrentPhase(), "Checking Phase");
+
+        Map<String, String> images = gameSession.getGeneratedImages();
+        gameSession.getPlayers().forEach(player ->
+                messageUtil.sendToPlayer(gameSession.getSessionId(), player.getSocketId(), "image", images.get(player.getId())));
+        messageUtil.broadcastGameState(gameSession.getSessionId(), gameSessionManager.createGameStateDto(gameSession));
     }
 }
