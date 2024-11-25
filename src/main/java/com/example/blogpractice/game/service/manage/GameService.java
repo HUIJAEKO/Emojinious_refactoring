@@ -73,41 +73,6 @@ public class GameService {
         return gameSession;
     }
 
-//    public GameStateDto createGameStateDto(GameSession gameSession) {
-//        GameStateDto dto = new GameStateDto();
-//        dto.setSessionId(gameSession.getSessionId());
-//        dto.setPlayers(gameSession.getPlayers().stream()
-//                .map(this::convertToPlayerDto)
-//                .collect(Collectors.toList()));
-//        dto.setSettings(convertToGameSettingsDto(gameSession.getSettings()));
-//        dto.setState(gameSession.getState());
-//        dto.setCurrentTurn(gameSession.getCurrentTurn());
-//        dto.setCurrentPhase(gameSession.getCurrentPhase().ordinal());
-//        dto.setRemainingTime(gameSession.getRemainingTime());
-//
-//        return dto;
-//    }
-
-    private PlayerDto convertToPlayerDto(Player player) {
-        PlayerDto dto = new PlayerDto();
-        dto.setId(player.getId());
-        dto.setNickname(player.getNickname());
-        dto.setCharacterId(player.getCharacterId());
-        dto.setHost(player.isHost());
-        dto.setScore(player.getScore());
-        return dto;
-    }
-
-    private GameSettingDto convertToGameSettingsDto(GameSettings settings) {
-        GameSettingDto dto = new GameSettingDto();
-        dto.setPromptTimeLimit(settings.getPromptTimeLimit());
-        dto.setGuessTimeLimit(settings.getGuessTimeLimit());
-        dto.setDifficulty(settings.getDifficulty());
-        dto.setTurns(settings.getTurns());
-        dto.setTheme(settings.getTheme());
-        return dto;
-    }
-
     public void broadcastChatMessage(String sessionId, ChatMessage message) {
         messageUtil.broadcastChatMessage(sessionId, message);
     }
