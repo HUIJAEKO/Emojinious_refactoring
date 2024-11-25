@@ -28,6 +28,8 @@ public class GameService {
     private final PhaseService phaseService;
     private final GameSessionManager gameSessionManager;
     private final ScoreCalculator scoreCalculator;
+    private final GameStateManager gameStateManager;
+    private final GameSessionUpdateManager gameSessionUpdateManager;
 
     public void handleExistingConnection(String sessionId, String playerId) {
         Set<String> sessionPlayers = activeConnections.computeIfAbsent(sessionId, k -> ConcurrentHashMap.newKeySet());
@@ -37,7 +39,7 @@ public class GameService {
     }
 
     public boolean isPlayerAlreadyJoined(String sessionId, String playerId) {
-        GameSession gameSession = getGameSession(sessionId);
+        GameSession gameSession = gameSessionUpdateManager.getGameSession(sessionId);
         System.out.println(gameSession != null && gameSession.getPlayerById(playerId) != null);
         return gameSession != null && gameSession.getPlayerById(playerId) != null;
     }
@@ -46,31 +48,23 @@ public class GameService {
         GameSession gameSession = getOrCreateGameSession(sessionId);
         Player player = playerService.getPlayerById(playerId);
         gameSession.addPlayer(player);
-        updateGameSession(gameSession);
-        messageUtil.broadcastGameState(gameSession.getSessionId(), gameSessionManager.createGameStateDto(gameSession));
-        return gameSessionManager.createGameStateDto(gameSession);
-    }
-
-    public GameStateDto getGameState(String sessionId) {
-        GameSession gameSession = getGameSession(sessionId);
-        return gameSessionManager.createGameStateDto(gameSession);
-    }
-
-    public void updateGameSession(GameSession gameSession) {
-        redisUtil.set(GAME_SESSION_KEY + gameSession.getSessionId(), gameSession);
-    }
-
-    public GameSession getGameSession(String sessionId) {
-        return redisUtil.get(GAME_SESSION_KEY + sessionId, GameSession.class);
+        gameSessionUpdateManager.updateGameSession(gameSession);
+        messageUtil.broadcastGameState(gameSession.getSessionId(), gameStateManager.createGameStateDto(gameSession));
+        return gameStateManager.createGameStateDto(gameSession);
     }
 
     private GameSession getOrCreateGameSession(String sessionId) {
         GameSession gameSession = redisUtil.get(GAME_SESSION_KEY + sessionId, GameSession.class);
         if (gameSession == null) {
             gameSession = new GameSession(sessionId);
-            updateGameSession(gameSession);
+            gameSessionUpdateManager.updateGameSession(gameSession);
         }
         return gameSession;
+    }
+
+    public GameStateDto getGameState(String sessionId) {
+        GameSession gameSession = gameSessionUpdateManager.getGameSession(sessionId);
+        return gameStateManager.createGameStateDto(gameSession);
     }
 
     public void broadcastChatMessage(String sessionId, ChatMessage message) {
@@ -78,37 +72,37 @@ public class GameService {
     }
 
     public GameStateDto startGame(String sessionId, String playerId) {
-        GameSession gameSession = getGameSession(sessionId);
+        GameSession gameSession = gameSessionUpdateManager.getGameSession(sessionId);
         if (!gameSession.isHost(playerId)) {
             throw new IllegalStateException("Only host can start the game");
         }
         gameSession.startGame();
-        updateGameSession(gameSession);
+        gameSessionUpdateManager.updateGameSession(gameSession);
         phaseService.startLoadingPhase(gameSession);
-        return gameSessionManager.createGameStateDto(gameSession);
+        return gameStateManager.createGameStateDto(gameSession);
     }
 
     public GameStateDto submitPrompt(String sessionId, String playerId, String message) {
         System.out.println("GameService.submitPrompt");
-        GameSession gameSession = getGameSession(sessionId);
+        GameSession gameSession = gameSessionUpdateManager.getGameSession(sessionId);
         gameSession.submitPrompt(playerId, message);
         gameSessionManager.updateSubmissionProgress(gameSession, "prompt");
-        updateGameSession(gameSession);
-        messageUtil.broadcastGameState(gameSession.getSessionId(), gameSessionManager.createGameStateDto(gameSession));
+        gameSessionUpdateManager.updateGameSession(gameSession);
+        messageUtil.broadcastGameState(gameSession.getSessionId(), gameStateManager.createGameStateDto(gameSession));
         System.out.println("gameSession = " + gameSession);
-        return gameSessionManager.createGameStateDto(gameSession);
+        return gameStateManager.createGameStateDto(gameSession);
     }
 
 
     public GameStateDto submitGuess(String sessionId, String playerId, String guess) {
-        GameSession gameSession = getGameSession(sessionId);
+        GameSession gameSession = gameSessionUpdateManager.getGameSession(sessionId);
         gameSession.submitGuess(playerId, guess);
         gameSessionManager.updateSubmissionProgress(gameSession, "guess");
         CompletableFuture.runAsync(() -> calculateAndSaveScore(gameSession, playerId, guess));
 
-        updateGameSession(gameSession);
-        messageUtil.broadcastGameState(gameSession.getSessionId(), gameSessionManager.createGameStateDto(gameSession));
-        return gameSessionManager.createGameStateDto(gameSession);
+        gameSessionUpdateManager.updateGameSession(gameSession);
+        messageUtil.broadcastGameState(gameSession.getSessionId(), gameStateManager.createGameStateDto(gameSession));
+        return gameStateManager.createGameStateDto(gameSession);
     }
 
     private void calculateAndSaveScore(GameSession gameSession, String playerId, String guess) {
@@ -116,6 +110,6 @@ public class GameService {
         String targetKeyword = gameSession.getCurrentKeywords().get(targetPlayerId);
         float score = scoreCalculator.calculateSingleGuessScore(guess, targetKeyword);
         gameSession.addScore(playerId, targetPlayerId, score);
-        updateGameSession(gameSession);
+        gameSessionUpdateManager.updateGameSession(gameSession);
     }
 }
