@@ -35,7 +35,7 @@ public class PhaseService {
         );
         gameSession.getCurrentKeywords().clear();
         gameSession.getCurrentKeywords().putAll(keywords);
-        gameSessionManager.updateGameSession(gameSession);
+        updateGameSession(gameSession);
         moveToNextPhase(gameSession);
     }
 
