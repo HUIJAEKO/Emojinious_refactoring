@@ -136,4 +136,10 @@ public class GameSession implements Serializable {
             default -> phaseEndTime = phaseStartTime + 60 * 10 * 1000L;
         }
     }
+
+    public void setGeneratedImage(String playerId, String imageUrl) {
+
+        generatedImages.put(playerId, imageUrl);
+    }
+
 }
