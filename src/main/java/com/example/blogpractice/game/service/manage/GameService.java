@@ -1,13 +1,10 @@
 package com.example.blogpractice.game.service.manage;
 
-import com.example.blogpractice.game.dto.GameSettingDto;
 import com.example.blogpractice.game.dto.GameStateDto;
 import com.example.blogpractice.game.model.GameSession;
-import com.example.blogpractice.game.model.GameSettings;
-import com.example.blogpractice.game.service.phase.PhaseService;
+import com.example.blogpractice.game.service.phase.LoadingPhaseService;
 import com.example.blogpractice.websocket.message.ChatMessage;
 import com.example.blogpractice.player.domain.Player;
-import com.example.blogpractice.player.dto.PlayerDto;
 import com.example.blogpractice.player.service.PlayerService;
 import com.example.blogpractice.websocket.util.MessageUtil;
 import com.example.blogpractice.redis.util.RedisUtil;
@@ -26,8 +23,8 @@ public class GameService {
     private final MessageUtil messageUtil;
     private final Map<String, Set<String>> activeConnections = new ConcurrentHashMap<>();
     private static final String GAME_SESSION_KEY = "game:session:";
-    private final PhaseService phaseService;
     private final GameSessionManager gameSessionManager;
+    private final LoadingPhaseService loadingPhaseService;
 
     public void handleExistingConnection(String sessionId, String playerId) {
         Set<String> sessionPlayers = activeConnections.computeIfAbsent(sessionId, k -> ConcurrentHashMap.newKeySet());
@@ -73,41 +70,6 @@ public class GameService {
         return gameSession;
     }
 
-//    public GameStateDto createGameStateDto(GameSession gameSession) {
-//        GameStateDto dto = new GameStateDto();
-//        dto.setSessionId(gameSession.getSessionId());
-//        dto.setPlayers(gameSession.getPlayers().stream()
-//                .map(this::convertToPlayerDto)
-//                .collect(Collectors.toList()));
-//        dto.setSettings(convertToGameSettingsDto(gameSession.getSettings()));
-//        dto.setState(gameSession.getState());
-//        dto.setCurrentTurn(gameSession.getCurrentTurn());
-//        dto.setCurrentPhase(gameSession.getCurrentPhase().ordinal());
-//        dto.setRemainingTime(gameSession.getRemainingTime());
-//
-//        return dto;
-//    }
-
-//    private PlayerDto convertToPlayerDto(Player player) {
-//        PlayerDto dto = new PlayerDto();
-//        dto.setId(player.getId());
-//        dto.setNickname(player.getNickname());
-//        dto.setCharacterId(player.getCharacterId());
-//        dto.setHost(player.isHost());
-//        dto.setScore(player.getScore());
-//        return dto;
-//    }
-//
-//    private GameSettingDto convertToGameSettingsDto(GameSettings settings) {
-//        GameSettingDto dto = new GameSettingDto();
-//        dto.setPromptTimeLimit(settings.getPromptTimeLimit());
-//        dto.setGuessTimeLimit(settings.getGuessTimeLimit());
-//        dto.setDifficulty(settings.getDifficulty());
-//        dto.setTurns(settings.getTurns());
-//        dto.setTheme(settings.getTheme());
-//        return dto;
-//    }
-
     public void broadcastChatMessage(String sessionId, ChatMessage message) {
         messageUtil.broadcastChatMessage(sessionId, message);
     }
@@ -119,7 +81,7 @@ public class GameService {
         }
         gameSession.startGame();
         updateGameSession(gameSession);
-        phaseService.startLoadingPhase(gameSession);
+        loadingPhaseService.startLoadingPhase(gameSession);
         return gameSessionManager.createGameStateDto(gameSession);
     }
 }

@@ -2,6 +2,7 @@ package com.example.blogpractice.websocket.util;
 
 import com.example.blogpractice.game.constant.GamePhase;
 import com.example.blogpractice.game.dto.GameStateDto;
+import com.example.blogpractice.game.dto.TurnResultDto;
 import com.example.blogpractice.websocket.message.ChatMessage;
 import com.example.blogpractice.websocket.message.PlayerMessage;
 import lombok.RequiredArgsConstructor;
@@ -39,6 +40,10 @@ public class MessageUtil {
     public void updateSubmissionProgress(String sessionId, String type, int submitted, int total) {
         messagingTemplate.convertAndSend("/topic/game/" + sessionId + "/progress",
                 Map.of("type", type, "submitted", submitted, "total", total));
+    }
+
+    public void broadcastGameResult(String sessionId, TurnResultDto scores) {
+        messagingTemplate.convertAndSend("/topic/game/" + sessionId + "/result", scores);
     }
 
     private MessageHeaders createHeaders(String playerId) {
