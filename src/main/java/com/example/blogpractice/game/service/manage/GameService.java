@@ -88,25 +88,25 @@ public class GameService {
 //        return dto;
 //    }
 
-//    private PlayerDto convertToPlayerDto(Player player) {
-//        PlayerDto dto = new PlayerDto();
-//        dto.setId(player.getId());
-//        dto.setNickname(player.getNickname());
-//        dto.setCharacterId(player.getCharacterId());
-//        dto.setHost(player.isHost());
-//        dto.setScore(player.getScore());
-//        return dto;
-//    }
-//
-//    private GameSettingDto convertToGameSettingsDto(GameSettings settings) {
-//        GameSettingDto dto = new GameSettingDto();
-//        dto.setPromptTimeLimit(settings.getPromptTimeLimit());
-//        dto.setGuessTimeLimit(settings.getGuessTimeLimit());
-//        dto.setDifficulty(settings.getDifficulty());
-//        dto.setTurns(settings.getTurns());
-//        dto.setTheme(settings.getTheme());
-//        return dto;
-//    }
+    private PlayerDto convertToPlayerDto(Player player) {
+        PlayerDto dto = new PlayerDto();
+        dto.setId(player.getId());
+        dto.setNickname(player.getNickname());
+        dto.setCharacterId(player.getCharacterId());
+        dto.setHost(player.isHost());
+        dto.setScore(player.getScore());
+        return dto;
+    }
+
+    private GameSettingDto convertToGameSettingsDto(GameSettings settings) {
+        GameSettingDto dto = new GameSettingDto();
+        dto.setPromptTimeLimit(settings.getPromptTimeLimit());
+        dto.setGuessTimeLimit(settings.getGuessTimeLimit());
+        dto.setDifficulty(settings.getDifficulty());
+        dto.setTurns(settings.getTurns());
+        dto.setTheme(settings.getTheme());
+        return dto;
+    }
 
     public void broadcastChatMessage(String sessionId, ChatMessage message) {
         messageUtil.broadcastChatMessage(sessionId, message);
