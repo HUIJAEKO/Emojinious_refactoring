@@ -2,7 +2,7 @@ package com.example.blogpractice.game.service.manage;
 
 import com.example.blogpractice.game.dto.GameStateDto;
 import com.example.blogpractice.game.model.GameSession;
-import com.example.blogpractice.game.service.phase.LoadingPhaseService;
+import com.example.blogpractice.game.service.phase.PhaseService;
 import com.example.blogpractice.websocket.message.ChatMessage;
 import com.example.blogpractice.player.domain.Player;
 import com.example.blogpractice.player.service.PlayerService;
@@ -24,7 +24,7 @@ public class GameService {
     private final Map<String, Set<String>> activeConnections = new ConcurrentHashMap<>();
     private static final String GAME_SESSION_KEY = "game:session:";
     private final GameSessionManager gameSessionManager;
-    private final LoadingPhaseService loadingPhaseService;
+    private final PhaseService phaseService;
 
     public void handleExistingConnection(String sessionId, String playerId) {
         Set<String> sessionPlayers = activeConnections.computeIfAbsent(sessionId, k -> ConcurrentHashMap.newKeySet());
@@ -81,7 +81,7 @@ public class GameService {
         }
         gameSession.startGame();
         updateGameSession(gameSession);
-        loadingPhaseService.startLoadingPhase(gameSession);
+        PhaseService.startLoadingPhase(gameSession);
         return gameSessionManager.createGameStateDto(gameSession);
     }
 }
