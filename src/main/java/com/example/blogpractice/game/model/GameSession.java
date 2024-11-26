@@ -67,21 +67,6 @@ public class GameSession implements Serializable {
                 .orElse(null);
     }
 
-    public long getRemainingTime() {
-        if (currentPhase == GamePhase.GUESSING && currentGuessRound > 0) {
-            long totalGuessingTime = settings.getGuessTimeLimit() * 1000L;
-            long elapsedTimeInCurrentRound = System.currentTimeMillis() - currentRoundStartTime;
-
-            return Math.max(0, totalGuessingTime - elapsedTimeInCurrentRound);
-        } else {
-            return Math.max(0, phaseEndTime - System.currentTimeMillis());
-        }
-    }
-
-    public boolean isPhaseTimedOut() {
-        return System.currentTimeMillis() > phaseEndTime;
-    }
-
     public boolean isHost(String playerId) {
         return players.get(0).getId().equals(playerId);
     }
@@ -96,6 +81,7 @@ public class GameSession implements Serializable {
     }
 
     public void moveToNextPhase() {
+        System.out.println("GameSession.moveToNextPhase curr: " + currentPhase);
         switch (currentPhase) {
             case WAITING:
                 currentPhase = GamePhase.LOADING;
@@ -131,6 +117,7 @@ public class GameSession implements Serializable {
     }
 
     public void startPhaseTimer() {
+        System.out.println("GameSession.startPhaseTimer : " + currentPhase);
         phaseStartTime = System.currentTimeMillis();
         switch (currentPhase) {
             case DESCRIPTION -> phaseEndTime = phaseStartTime + (settings.getPromptTimeLimit() * 1000L);
@@ -139,6 +126,23 @@ public class GameSession implements Serializable {
             case TURN_RESULT -> phaseEndTime = phaseStartTime + 10 * 1000L;
             default -> phaseEndTime = phaseStartTime + 60 * 10 * 1000L;
         }
+        System.out.println("Time: " + (phaseEndTime - phaseStartTime) + " ms");
+    }
+
+    public long getRemainingTime() {
+        if (currentPhase == GamePhase.GUESSING && currentGuessRound > 0) {
+            long totalGuessingTime = settings.getGuessTimeLimit() * 1000L;
+            long elapsedTimeInCurrentRound = System.currentTimeMillis() - currentRoundStartTime;
+
+            return Math.max(0, totalGuessingTime - elapsedTimeInCurrentRound);
+        } else {
+            return Math.max(0, phaseEndTime - System.currentTimeMillis());
+        }
+    }
+
+    public boolean isPhaseTimedOut() {
+        System.out.println("GameSession.isPhaseTimedOut");
+        return System.currentTimeMillis() > phaseEndTime;
     }
 
     public void setGeneratedImage(String playerId, String imageUrl) {

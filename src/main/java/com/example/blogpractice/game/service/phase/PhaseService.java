@@ -5,13 +5,10 @@ import com.example.blogpractice.game.constant.GameState;
 import com.example.blogpractice.game.dto.TurnResultDto;
 import com.example.blogpractice.game.model.GameSession;
 import com.example.blogpractice.game.service.image.ImageGenerator;
-import com.example.blogpractice.game.service.manage.GameService;
-import com.example.blogpractice.game.service.manage.GameSessionManager;
 import com.example.blogpractice.game.service.manage.GameSessionUpdateManager;
 import com.example.blogpractice.game.service.manage.GameStateManager;
 import com.example.blogpractice.game.service.score.ScoreCalculator;
 import com.example.blogpractice.game.service.word.RandomWordGenerator;
-import com.example.blogpractice.redis.util.RedisUtil;
 import com.example.blogpractice.websocket.util.MessageUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -203,6 +200,8 @@ public class PhaseService {
                     handleGuessingPhaseTimeout(gameSession);
                 } else if (gameSession.isPhaseTimedOut()) {
                     moveToNextPhase(gameSession);
+                } else{
+                    continue;
                 }
             }
         }
